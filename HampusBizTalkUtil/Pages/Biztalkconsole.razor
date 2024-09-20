@@ -1,0 +1,238 @@
+﻿@page "/biztalkconsole"
+
+@using HampusBizTalkUtil.Data
+@inject BiztalkActions BiztalkActions
+
+<h3>Biztalk Console</h3>
+
+<HampusBizTalkUtil.Components.Modal @ref="Modal"></HampusBizTalkUtil.Components.Modal>
+<HampusBizTalkUtil.Components.Prompt @ref="Prompt"></HampusBizTalkUtil.Components.Prompt>
+
+<div class="grid-container">
+
+	<div class="grid-item">
+		<h5>Biztalk Console</h5>
+		<br />
+		<button class="done" @onclick='() => RestartHostInstances()'>Restart Host-Instances</button>
+		<br />
+		<br />
+		<br />
+		<br />
+		<br />
+		<br />
+		<br />
+		<br />
+		<br />
+		<br />
+		<br />
+		<br />
+		<br />
+		<br />
+		<br />
+		<br />
+		<br />
+		<br />
+		<br />
+		<button @onclick='() => Modal.Open("Test", "Testing")'>Open Modal</button>
+		<button @onclick='() => Prompt.Show("Test", "Testing")'>Open Prompt</button>
+		@* <label>Export Config</label>
+		<br />
+		<input placeholder="C:/Export" />
+		<br />
+		<button>Set Location</button> *@
+		
+	</div>
+
+	<div class="grid-item">
+		<h5>Bindings</h5>
+		<p>Selected Applications @selectedApplications.Length</p>
+		<br />
+		<br />
+		<button class="done" @onclick="CheckNamning">Check Naming (1)</button>
+		<br />
+		<br />
+		<br />
+		<button>Clear bindings</button>
+		<br />
+		<br />
+		<button class="done" @onclick="() => ExportBindings()">Export bindings</button>
+		<br />
+		<br />
+		<button>Export MSI</button>
+		<br />
+		<br />
+		<br />
+		<br />
+		<h5>Binding environments</h5>
+		<div class="grid-container-env">
+
+			<div class="grid-item">
+				<button class="done" @onclick='() => ExportBindings("_Dev")'>Save Dev</button>
+				<br />
+				<br />
+				<button class="done" @onclick='() => ImportBindings("_Dev")'>Set Dev</button>
+			</div>
+
+			<div class="grid-item">
+				<button class="done" @onclick='() => ExportBindings("_Test")'>Save Test</button>
+				<br />
+				<br />
+				<button class="done" @onclick='() => ImportBindings("_Test")'>Set Test</button>
+			</div>
+
+			<div class="grid-item">
+				<button class="done" @onclick='() => ExportBindings("_QA")'>Save QA</button>
+				<br />
+				<br />
+				<button class="done" @onclick='() => ImportBindings("_QA")'>Set QA</button>
+			</div>
+
+			<div class="grid-item">
+				<button class="done" @onclick='() => ExportBindings("_Prod")'>Save Prod</button>
+				<br />
+				<br />
+				<button class="done" @onclick='() => ImportBindings("_Prod")'>Set Prod</button>
+			</div>
+
+		</div>
+	</div>
+
+	<div class="grid-item">
+		<h5>Application</h5>
+		<button style="background-color: lightblue" @onclick="GetBiztalkApplications">Refresh applications</button>
+		<br />
+		@* <textarea rows="20" cols="50" id="output">@output</textarea> *@
+		<select multiple size="20" @onchange="GetApplication">
+			@foreach (var option in biztalkApplications)
+			{
+				<option value="@option">@option</option>
+			}
+		</select>
+		<br />
+		<br />
+		<button style="background-color: lightgreen" @onclick="StartApplication">Start Selected</button>
+		<br />
+		<br />
+		<button style="background-color: palevioletred" @onclick="StopApplication">Stop Selected</button>
+	</div>
+
+</div>
+
+
+<style>
+	.grid-container {
+		display: grid;
+		column-gap: 10px;
+		grid-template-columns: auto auto auto;
+		background-color: #2196F3;
+		padding: 10px;
+	}
+
+	.grid-container-env {
+		display: grid;
+		column-gap: 5px;
+		grid-template-columns: auto auto auto auto;
+		background-color: #2196F3;
+		padding: 5px;
+	}
+
+	.grid-item {
+		background-color: rgba(255, 255, 255, 0.8);
+		border: 1px solid rgba(0, 0, 0, 0.8);
+		padding: 20px;
+	}
+
+	select {
+		overflow-y: auto;
+	}
+
+	.done {
+		background-color: lightblue;
+	}
+</style>
+
+@code {
+	private HampusBizTalkUtil.Components.Modal Modal { get; set; }
+	private HampusBizTalkUtil.Components.Prompt Prompt { get; set; }
+
+	List<string> biztalkApplications = new List<string>();
+	string[] selectedApplications = new string[0];
+
+	private void GetBiztalkApplications()
+	{
+		biztalkApplications = BiztalkActions.GetBiztalkApplications().ToList();
+	}
+
+	private void GetApplication(ChangeEventArgs e)
+	{
+		selectedApplications = e.Value as string[];
+	}
+
+	private async Task ExportBindings(string environment = "")
+	{
+		foreach (var application in selectedApplications)
+		{
+			if (string.IsNullOrEmpty(environment) == false)
+			{
+				bool performExport = await Prompt.Show("Export bindings", $"Export bindings as {environment}?");
+				if (performExport)
+					BiztalkActions.ExportBindings(application, environment);
+			}
+			else
+				BiztalkActions.ExportBindings(application, environment);
+		}
+	}
+
+	private async Task ImportBindings(string environment = "")
+	{
+		foreach (var application in selectedApplications)
+		{
+			if (string.IsNullOrEmpty(environment) == false)
+			{
+				bool performImport = await Prompt.Show("Import bindings", $"Import bindings as {environment}?");
+				if (performImport)
+					BiztalkActions.ImportBindings(application, environment);
+			}
+			else
+				BiztalkActions.ImportBindings(application, environment);
+		}
+	}
+
+	private void StartApplication()
+	{
+		foreach (var application in selectedApplications)
+		{
+			BiztalkActions.StartApplication(application);
+		}
+	}
+
+	private void StopApplication()
+	{
+		foreach (var application in selectedApplications)
+		{
+			BiztalkActions.StopApplication(application);
+		}
+	}
+
+	private void RestartHostInstances()
+	{
+		BiztalkActions.RestartHostInstances();
+	}
+
+	private void CheckNamning()
+	{
+		if (selectedApplications.Length == 1)
+		{
+			var namingOutput = BiztalkActions.CheckNaming(selectedApplications[0]);
+			Modal.Open("Naming", namingOutput);
+		}
+	}
+
+
+	// Onload
+	protected override Task OnInitializedAsync()
+	{
+		// OutputTest();
+		return base.OnInitializedAsync();
+	}
+}

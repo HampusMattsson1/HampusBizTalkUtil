@@ -1,0 +1,22 @@
+﻿@inherits LayoutComponentBase
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            @* <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a> *@
+            <b style="margin-right: 5em;">Environment settings</b>
+            <label>Save folder</label>
+            <input name="" placeholder="C:\HampusBizTalkUtil" style="margin-right: 3em;" />
+            <label>BizTalk machine name</label>
+            <input placeholder="BIZDEV-WS11" name="" />
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>

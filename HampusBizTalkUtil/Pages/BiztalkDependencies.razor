@@ -1,0 +1,122 @@
+﻿@page "/biztalkdependencies"
+
+@using HampusBizTalkUtil.Data
+@inject BiztalkActions BiztalkActions
+
+<h3>Biztalk Dependencies</h3>
+
+<div class="grid-container">
+
+	<div class="grid-item">
+		<h5>Dependencies</h5>
+		<button style="background-color: lightblue" @onclick="GetBiztalkDependencies">Refresh dependencies</button>
+		<br />
+		<select multiple size="20" @onchange="SetDependency">
+			@foreach (var option in biztalkDependencies)
+			{
+				<option value="@option">@option</option>
+			}
+		</select>
+	</div>
+
+	<div class="grid-item">
+		<h5>Applications</h5>
+		<button style="background-color: lightblue" @onclick="GetBiztalkApplicationsByDependency">Get applications by dependency</button>
+		<br />
+		<select multiple size="20" @onchange="SetApplications">
+			@foreach (var option in biztalkApplications)
+			{
+				<option value="@option">@option</option>
+			}
+		</select>
+	</div>
+
+	<div class="grid-item">
+		<h5>Actions</h5>
+		<p>Selected Applications @selectedApplications.Length</p>
+		<br />
+		<br />
+		<button style="background-color: lightgreen" @onclick="StartApplication">Start Selected</button>
+		<br />
+		<br />
+		<button style="background-color: palevioletred" @onclick="StopApplication">Stop Selected</button>
+	</div>
+
+</div>
+
+<style>
+	.grid-container {
+		display: grid;
+		column-gap: 10px;
+		grid-template-columns: auto auto auto;
+		background-color: #2196F3;
+		padding: 10px;
+	}
+
+	.grid-container-env {
+		display: grid;
+		column-gap: 5px;
+		grid-template-columns: auto auto auto auto;
+		background-color: #2196F3;
+		padding: 5px;
+	}
+
+	.grid-item {
+		background-color: rgba(255, 255, 255, 0.8);
+		border: 1px solid rgba(0, 0, 0, 0.8);
+		padding: 20px;
+	}
+
+	select {
+		overflow-y: auto;
+	}
+
+	.done {
+		background-color: lightblue;
+	}
+</style>
+
+@code {
+
+	List<string> biztalkDependencies = new List<string>();
+	List<string> biztalkApplications = new List<string>();
+
+	string[] selectedApplications = new string[0];
+	string selectedDependency = "";
+
+	private void GetBiztalkDependencies()
+	{
+		biztalkDependencies = BiztalkActions.GetBiztalkDependencies();
+	}
+
+	private void GetBiztalkApplicationsByDependency()
+	{
+		biztalkApplications = BiztalkActions.GetBiztalkApplicationsByDependency(selectedDependency);
+	}
+
+	private void SetDependency(ChangeEventArgs e)
+	{
+		selectedDependency = (e.Value as string[])[0];
+	}
+
+	private void SetApplications(ChangeEventArgs e)
+	{
+		selectedApplications = e.Value as string[];
+	}
+
+	private void StartApplication()
+	{
+		foreach (var application in selectedApplications)
+		{
+			BiztalkActions.StartApplication(application);
+		}
+	}
+
+	private void StopApplication()
+	{
+		foreach (var application in selectedApplications)
+		{
+			BiztalkActions.StopApplication(application);
+		}
+	}
+}

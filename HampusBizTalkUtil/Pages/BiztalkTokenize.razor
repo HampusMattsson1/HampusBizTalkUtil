@@ -1,0 +1,124 @@
+﻿@page "/biztalktokenize"
+
+@using HampusBizTalkUtil.Data
+@inject BiztalkActions BiztalkActions
+
+<h3>Biztalk Tokenization</h3>
+
+<div class="grid-container">
+
+	<div class="grid-item">
+		@* <h5>Applications</h5>
+		<button style="background-color: lightblue" @onclick="GetBiztalkApplications">Refresh applications</button>
+		<br />
+		<select multiple size="20" @onchange="SetApplications">
+			@foreach (var option in biztalkApplications)
+			{
+				<option value="@option">@option</option>
+			}
+		</select> *@
+		<h5>Binding XML</h5>
+		<pre></pre>
+	</div>
+
+	<div class="grid-item">
+		<h5>Bindings</h5>
+		<button @onclick="GetExportedBindings" disabled="@DisableGetBindings">Get bindings för selected application(1)</button>
+
+		@foreach (var binding in bindingsForApplication)
+		{
+			<p>@binding</p>
+		}
+
+		@* <button style="background-color: lightblue" @onclick="GetBiztalkApplicationsByDependency">Get applications by dependency</button>
+		<br />
+		<select multiple size="20" @onchange="SetApplications">
+			@foreach (var option in biztalkApplications)
+			{
+				<option value="@option">@option</option>
+			}
+		</select> *@
+	</div>
+
+	<div class="grid-item">
+		<h5>Tokenize</h5>
+		@* <p>Selected Applications @selectedApplications.Length</p>
+		<br />
+		<br />
+		<button style="background-color: lightgreen" @onclick="StartApplication">Start Selected</button>
+		<br />
+		<br />
+		<button style="background-color: palevioletred" @onclick="StopApplication">Stop Selected</button> *@
+	</div>
+
+</div>
+
+<style>
+	.grid-container {
+		display: grid;
+		column-gap: 10px;
+		grid-template-columns: auto auto auto;
+		background-color: #2196F3;
+		padding: 10px;
+	}
+
+	.grid-container-env {
+		display: grid;
+		column-gap: 5px;
+		grid-template-columns: auto auto auto auto;
+		background-color: #2196F3;
+		padding: 5px;
+	}
+
+	.grid-item {
+		background-color: rgba(255, 255, 255, 0.8);
+		border: 1px solid rgba(0, 0, 0, 0.8);
+		padding: 20px;
+	}
+
+	select {
+		overflow-y: auto;
+	}
+
+	.done {
+		background-color: lightblue;
+	}
+</style>
+
+@code {
+
+	List<string> biztalkApplications = new List<string>();
+
+	List<string> bindingsForApplication = new List<string>();
+	bool DisableGetBindings = true;
+
+	string[] selectedApplications = new string[0];
+
+	private void GetBiztalkApplications()
+	{
+		biztalkApplications = BiztalkActions.GetBiztalkApplications().ToList();
+	}
+
+	private void SetApplications(ChangeEventArgs e)
+	{
+		selectedApplications = e.Value as string[];
+
+		if (selectedApplications.Length == 1)
+		{
+			DisableGetBindings = false;
+			bindingsForApplication = BiztalkActions.GetSavedBindingsForApplication(selectedApplications[0]);
+			bindingsForApplication.Add("testing");
+		}
+		else
+		{
+			DisableGetBindings = true;
+		}
+		StateHasChanged();
+	}
+
+	private void GetExportedBindings()
+	{
+		bindingsForApplication.Add("testing");
+	}
+
+}

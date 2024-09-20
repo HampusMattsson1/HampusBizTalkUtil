@@ -1,0 +1,94 @@
+﻿@page "/bindingvisualization"
+
+@using HampusBizTalkUtil.Data
+@* @inject BiztalkActions BiztalkActions *@
+@inject BindingActions BindingActions
+
+<h3>Binding Visualization</h3>
+
+<div class="grid-container">
+
+	<div class="grid-item">
+		<h5>Binding path</h5>
+		<br />
+		<input placeholder="C:\temp\IPXXXX_bindings.xml" @onchange="SetBindingPath" />
+		<button style="background-color: lightgreen" onclick="@visualizeBindings">Load binding</button>
+	</div>
+
+	<div class="grid-item">
+		<h5>Bindings</h5>
+
+		@* <button style="background-color: lightblue" @onclick="GetBiztalkApplicationsByDependency">Get applications by dependency</button>
+		<br />
+		<select multiple size="20" @onchange="SetApplications">
+			@foreach (var option in biztalkApplications)
+			{
+				<option value="@option">@option</option>
+			}
+		</select> *@
+		<h5>@bindingPath</h5>
+		<div>@((MarkupString)bindingHtml)</div>
+
+	</div>
+
+	<div class="grid-item">
+		<h5>Elements & values</h5>
+		@* <p>Selected Applications @selectedApplications.Length</p>
+		<br />
+		<br />
+		<button style="background-color: lightgreen" @onclick="StartApplication">Start Selected</button>
+		<br />
+		<br />
+		<button style="background-color: palevioletred" @onclick="StopApplication">Stop Selected</button> *@
+	</div>
+
+</div>
+
+<style>
+	.grid-container {
+		display: grid;
+		column-gap: 10px;
+		grid-template-columns: auto auto auto;
+		background-color: #2196F3;
+		padding: 10px;
+	}
+
+	.grid-container-env {
+		display: grid;
+		column-gap: 5px;
+		grid-template-columns: auto auto auto auto;
+		background-color: #2196F3;
+		padding: 5px;
+	}
+
+	.grid-item {
+		background-color: rgba(255, 255, 255, 0.8);
+		border: 1px solid rgba(0, 0, 0, 0.8);
+		padding: 20px;
+	}
+
+	select {
+		overflow-y: auto;
+	}
+
+	.done {
+		background-color: lightblue;
+	}
+</style>
+
+@code {
+
+	string bindingPath = "";
+	string bindingHtml = "";
+
+	private void SetBindingPath(ChangeEventArgs e)
+	{
+		bindingPath = e.Value as string;
+	}
+
+	private void visualizeBindings()
+	{
+		bindingHtml = BindingActions.GenerateHtmlFromXML(bindingPath);
+	}
+
+}
