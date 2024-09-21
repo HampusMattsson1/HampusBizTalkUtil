@@ -24,9 +24,9 @@ namespace HampusBizTalkUtil
 
             builder.Services.AddSingleton<WeatherForecastService>();
             builder.Services.AddSingleton<BiztalkActions>();
-            builder.Services.AddSingleton<BindingActions>();
+            builder.Services.AddSingleton<Tokenization>();
 
-			return builder.Build();
+            return builder.Build();
         }
     }
 }

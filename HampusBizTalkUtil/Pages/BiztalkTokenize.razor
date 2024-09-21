@@ -1,7 +1,9 @@
 ﻿@page "/biztalktokenize"
 
 @using HampusBizTalkUtil.Data
-@inject BiztalkActions BiztalkActions
+@using HampusBizTalkUtil.Models
+@using System.Text.RegularExpressions
+@inject Tokenization Tokenization
 
 <h3>Biztalk Tokenization</h3>
 
@@ -17,18 +19,35 @@
 				<option value="@option">@option</option>
 			}
 		</select> *@
-		<h5>Binding XML</h5>
-		<pre></pre>
+		<h5 style="font-weight: bold">Binding XML</h5>
+		@* <textarea @bind="xml" @bind:event="oninput" style="border:2px solid Black;">@xml</textarea> *@
+		<textarea @oninput="Update" rows="50" cols="50" style="border:2px solid Black;">@xml</textarea>
 	</div>
 
 	<div class="grid-item">
-		<h5>Bindings</h5>
+		<h5 style="font-weight: bold">General values</h5>
+		<div id="values">
+			@* @xml *@
+			@foreach(var port in binding)
+			{
+				<p>@port.Key</p>
+				foreach(var value in port.Value)
+				{
+					<input value="@value.Name" style='width:50%; float: left' />
+					<input value="@value.Value" style='width:50%' />
+				}
+				
+				<br />
+				<br />
+			}
+		</div>
+		@* <h5>Bindings</h5>
 		<button @onclick="GetExportedBindings" disabled="@DisableGetBindings">Get bindings för selected application(1)</button>
 
 		@foreach (var binding in bindingsForApplication)
 		{
 			<p>@binding</p>
-		}
+		} *@
 
 		@* <button style="background-color: lightblue" @onclick="GetBiztalkApplicationsByDependency">Get applications by dependency</button>
 		<br />
@@ -41,7 +60,14 @@
 	</div>
 
 	<div class="grid-item">
-		<h5>Tokenize</h5>
+		<h5 style="font-weight: bold">Variables</h5>
+		<div id="variables">
+			@foreach (var variable in variables)
+			{
+				<input value="@variable" />
+				<br />
+			}
+		</div>
 		@* <p>Selected Applications @selectedApplications.Length</p>
 		<br />
 		<br />
@@ -87,38 +113,66 @@
 
 @code {
 
-	List<string> biztalkApplications = new List<string>();
+	private string xml = "";
+	private Dictionary<string, List<BindingValue>> binding = new Dictionary<string, List<BindingValue>>();
+	private List<string> variables = new List<string>();
 
-	List<string> bindingsForApplication = new List<string>();
-	bool DisableGetBindings = true;
-
-	string[] selectedApplications = new string[0];
-
-	private void GetBiztalkApplications()
+	// Onload
+	protected override Task OnInitializedAsync()
 	{
-		biztalkApplications = BiztalkActions.GetBiztalkApplications().ToList();
+		// OutputTest();
+		// binding = Tokenization.GetBasicBindingValues(xml);
+		return base.OnInitializedAsync();
 	}
 
-	private void SetApplications(ChangeEventArgs e)
+	private void Update(ChangeEventArgs e)
 	{
-		selectedApplications = e.Value as string[];
+		xml = e.Value.ToString();
+		binding = Tokenization.GetBasicBindingValues(xml);
 
-		if (selectedApplications.Length == 1)
+		var variableMatches = Regex.Matches(xml, "__.*?__");
+		if (variableMatches.Count > 0)
 		{
-			DisableGetBindings = false;
-			bindingsForApplication = BiztalkActions.GetSavedBindingsForApplication(selectedApplications[0]);
-			bindingsForApplication.Add("testing");
+			variables = variableMatches.Cast<Match>().Select(m => m.Value).ToList();
 		}
 		else
 		{
-			DisableGetBindings = true;
+			variables.Clear();
 		}
-		StateHasChanged();
 	}
 
-	private void GetExportedBindings()
-	{
-		bindingsForApplication.Add("testing");
-	}
+	// List<string> biztalkApplications = new List<string>();
+
+	// List<string> bindingsForApplication = new List<string>();
+	// bool DisableGetBindings = true;
+
+	// string[] selectedApplications = new string[0];
+
+	// private void GetBiztalkApplications()
+	// {
+	// 	biztalkApplications = BiztalkActions.GetBiztalkApplications().ToList();
+	// }
+
+	// private void SetApplications(ChangeEventArgs e)
+	// {
+	// 	selectedApplications = e.Value as string[];
+
+	// 	if (selectedApplications.Length == 1)
+	// 	{
+	// 		DisableGetBindings = false;
+	// 		bindingsForApplication = BiztalkActions.GetSavedBindingsForApplication(selectedApplications[0]);
+	// 		bindingsForApplication.Add("testing");
+	// 	}
+	// 	else
+	// 	{
+	// 		DisableGetBindings = true;
+	// 	}
+	// 	StateHasChanged();
+	// }
+
+	// private void GetExportedBindings()
+	// {
+	// 	bindingsForApplication.Add("testing");
+	// }
 
 }
