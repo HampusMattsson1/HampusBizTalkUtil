@@ -3,6 +3,8 @@
 @using HampusBizTalkUtil.Data
 @using HampusBizTalkUtil.Models
 @using System.Text.RegularExpressions
+@using System.Xml
+@using System.ComponentModel
 @inject Tokenization Tokenization
 
 <h3>Biztalk Tokenization</h3>
@@ -21,11 +23,12 @@
 		</select> *@
 		<h5 style="font-weight: bold">Binding XML</h5>
 		@* <textarea @bind="xml" @bind:event="oninput" style="border:2px solid Black;">@xml</textarea> *@
-		<textarea @oninput="Update" rows="50" cols="50" style="border:2px solid Black;">@xml</textarea>
+		@* <textarea @oninput="Update" rows="50" cols="50" style="border:2px solid Black;">@xml</textarea> *@
+		<textarea @oninput="Update" @bind="xml" rows="50" cols="50" style="border:2px solid Black;"></textarea>
 	</div>
 
 	<div class="grid-item">
-		<h5 style="font-weight: bold">General values</h5>
+		<h5 style="font-weight: bold">Port values</h5>
 		<div id="values">
 			@* @xml *@
 			@foreach(var port in binding)
@@ -34,7 +37,9 @@
 				foreach(var value in port.Value)
 				{
 					<input value="@value.Name" style='width:50%; float: left' />
-					<input value="@value.Value" style='width:50%' />
+					@* <input value="@value.Value" oninput="@((ChangeEventArgs e) => value.UpdateXml(document))" style='width:50%' /> *@
+					<input @bind="value.Value" oninput="@((ChangeEventArgs e) => UpdateXml(e, value))" style='width:50%' />
+
 				}
 				
 				<br />
@@ -113,21 +118,28 @@
 
 @code {
 
+	private XmlDocument document = new XmlDocument();
 	private string xml = "";
 	private Dictionary<string, List<BindingValue>> binding = new Dictionary<string, List<BindingValue>>();
 	private List<string> variables = new List<string>();
 
 	// Onload
-	protected override Task OnInitializedAsync()
-	{
-		// OutputTest();
-		// binding = Tokenization.GetBasicBindingValues(xml);
-		return base.OnInitializedAsync();
-	}
+	// protected override Task OnInitializedAsync()
+	// {
+	// 	// OutputTest();
+	// 	// binding = Tokenization.GetBasicBindingValues(xml);
+	// 	return base.OnInitializedAsync();
+	// }
 
 	private void Update(ChangeEventArgs e)
 	{
 		xml = e.Value.ToString();
+
+		try
+		{
+			document.LoadXml(xml);
+		} catch {}
+
 		binding = Tokenization.GetBasicBindingValues(xml);
 
 		var variableMatches = Regex.Matches(xml, "__.*?__");
@@ -141,38 +153,26 @@
 		}
 	}
 
-	// List<string> biztalkApplications = new List<string>();
+	private void UpdateXml(ChangeEventArgs e, BindingValue bindingValue)
+	{
+		string newValue = e.Value.ToString();
 
-	// List<string> bindingsForApplication = new List<string>();
-	// bool DisableGetBindings = true;
+		bindingValue.Value = newValue;
+		bindingValue.UpdateXml(document);
 
-	// string[] selectedApplications = new string[0];
+		xml = document.DocumentElement.OuterXml;
 
-	// private void GetBiztalkApplications()
-	// {
-	// 	biztalkApplications = BiztalkActions.GetBiztalkApplications().ToList();
-	// }
+		// binding = Tokenization.GetBasicBindingValues(xml);
+		// OnPropertyChanged(nameof(xml));
+		// OnPropertyChanged(nameof(xml));
 
-	// private void SetApplications(ChangeEventArgs e)
-	// {
-	// 	selectedApplications = e.Value as string[];
+		StateHasChanged();
+	}
 
-	// 	if (selectedApplications.Length == 1)
-	// 	{
-	// 		DisableGetBindings = false;
-	// 		bindingsForApplication = BiztalkActions.GetSavedBindingsForApplication(selectedApplications[0]);
-	// 		bindingsForApplication.Add("testing");
-	// 	}
-	// 	else
-	// 	{
-	// 		DisableGetBindings = true;
-	// 	}
-	// 	StateHasChanged();
-	// }
+	public event PropertyChangedEventHandler PropertyChanged;
 
-	// private void GetExportedBindings()
-	// {
-	// 	bindingsForApplication.Add("testing");
-	// }
-
+	protected virtual void OnPropertyChanged(string propertyName)
+	{
+		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+	}
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Components;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -54,6 +55,12 @@ namespace HampusBizTalkUtil.Models
 		public void UpdateXml(XmlDocument doc)
 		{
 			// Kom ihåg att kolla specialfall som ReceiveWCF-Custom
+			XmlNode node = doc.SelectSingleNode(Xpath);
+			if (node != null)
+			{
+				//node.InnerText = "123";
+				node.InnerText = Value;
+			}
 		}
 	}
 }
