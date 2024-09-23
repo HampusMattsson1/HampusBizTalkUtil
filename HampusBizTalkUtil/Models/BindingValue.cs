@@ -52,13 +52,40 @@ namespace HampusBizTalkUtil.Models
 			}
 		}
 
-		public void UpdateXml(XmlDocument doc)
+		public void UpdateXml(XmlDocument doc, string specialCase = "")
 		{
-			// Kom ihåg att kolla specialfall som ReceiveWCF-Custom
 			XmlNode node = doc.SelectSingleNode(Xpath);
-			if (node != null)
+			if (node == null)
 			{
-				//node.InnerText = "123";
+				return;
+			}
+
+			// Kom ihåg att kolla specialfall som ReceiveWCF-Custom
+
+			// 1 level nesting
+			if (NestedXML)
+			{
+				var tempdoc = new XmlDocument();
+				tempdoc.LoadXml(node.InnerText);
+
+				if (string.IsNullOrEmpty(specialCase))
+				{
+					tempdoc.SelectSingleNode($"CustomProps/{Name}").InnerText = Value;
+					node.InnerText = tempdoc.OuterXml;
+				}
+				else
+				{
+					//if (specialCase == "ReceiveWCF-SQL")
+					//{
+					//	var customsProps = tempdoc.SelectSingleNode($"CustomProps/BindingConfiguration").InnerText;
+					//	tempdoc.LoadXml(customsProps);
+					//	var bindingConfiguration = tempdoc.SelectSingleNode("binding");
+					//	this.Value = bindingConfiguration.Attributes[Name].InnerText;
+					//}
+				}
+			}
+			else
+			{
 				node.InnerText = Value;
 			}
 		}
