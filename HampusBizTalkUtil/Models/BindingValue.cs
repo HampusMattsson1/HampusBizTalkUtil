@@ -14,30 +14,31 @@ namespace HampusBizTalkUtil.Models
 		public string Name;
 		public string Value;
 
-		private bool NestedXML = false;
+		private bool CustomProps = false;
+		private string SpecialCase = "";
 
 		public BindingValue() { }
 
-		public BindingValue(XmlDocument doc, string Name, string Xpath, bool NestedXML = false, string specialCase = "")
+		public BindingValue(XmlDocument doc, string Name, string Xpath, bool CustomProps = false, string SpecialCase = "")
 		{
 			this.Name = Name;
 			this.Xpath = Xpath;
 
-			if (NestedXML)
+			if (CustomProps)
 			{
-				this.NestedXML = NestedXML;
-				//this.Value = doc.SelectSingleNode(Xpath).InnerText;
+				this.CustomProps = CustomProps;
+				this.SpecialCase = SpecialCase;
 
 				var tempdoc = new XmlDocument();
 				tempdoc.LoadXml(doc.SelectSingleNode(Xpath).InnerText);
 
-				if (string.IsNullOrEmpty(specialCase))
+				if (string.IsNullOrEmpty(SpecialCase))
 				{
 					this.Value = tempdoc.SelectSingleNode($"CustomProps/{Name}").InnerText;
 				}
 				else
 				{
-					if (specialCase == "ReceiveWCF-SQL")
+					if (SpecialCase == "ReceiveWCF-SQL")
 					{
 						var customsProps = tempdoc.SelectSingleNode($"CustomProps/BindingConfiguration").InnerText;
 						tempdoc.LoadXml(customsProps);
@@ -52,7 +53,7 @@ namespace HampusBizTalkUtil.Models
 			}
 		}
 
-		public void UpdateXml(XmlDocument doc, string specialCase = "")
+		public void UpdateXml(XmlDocument doc)
 		{
 			XmlNode node = doc.SelectSingleNode(Xpath);
 			if (node == null)
@@ -63,26 +64,31 @@ namespace HampusBizTalkUtil.Models
 			// Kom ihåg att kolla specialfall som ReceiveWCF-Custom
 
 			// 1 level nesting
-			if (NestedXML)
+			if (CustomProps)
 			{
 				var tempdoc = new XmlDocument();
 				tempdoc.LoadXml(node.InnerText);
 
-				if (string.IsNullOrEmpty(specialCase))
+				if (string.IsNullOrEmpty(SpecialCase))
 				{
 					tempdoc.SelectSingleNode($"CustomProps/{Name}").InnerText = Value;
-					node.InnerText = tempdoc.OuterXml;
 				}
 				else
 				{
-					//if (specialCase == "ReceiveWCF-SQL")
-					//{
-					//	var customsProps = tempdoc.SelectSingleNode($"CustomProps/BindingConfiguration").InnerText;
-					//	tempdoc.LoadXml(customsProps);
-					//	var bindingConfiguration = tempdoc.SelectSingleNode("binding");
-					//	this.Value = bindingConfiguration.Attributes[Name].InnerText;
-					//}
+					if (SpecialCase == "ReceiveWCF-SQL")
+					{
+						var bindingConfiguration = tempdoc.SelectSingleNode($"CustomProps/BindingConfiguration").InnerText;
+
+						var tempdocSpecial = new XmlDocument();
+						tempdocSpecial.LoadXml(bindingConfiguration);
+
+						tempdocSpecial.SelectSingleNode("binding").Attributes[Name].InnerText = Value;
+
+						tempdoc.SelectSingleNode($"CustomProps/BindingConfiguration").InnerText = tempdocSpecial.OuterXml;
+					}
 				}
+
+				node.InnerText = tempdoc.OuterXml;
 			}
 			else
 			{
