@@ -43,13 +43,17 @@ namespace HampusBizTalkUtil.Data
 					{ new BindingValue(doc, "Description", sendPortXpath + "/Description") }
 				});
 
+				if (doc.SelectSingleNode(sendPortXpath + "/PrimaryTransport/Address") != null)
+				{
+					result[name].Add(new BindingValue(doc, "Address", sendPortXpath + "/PrimaryTransport/Address"));
+				}
+
 				switch (type)
 				{
 					case "FILE":
 						result[name].AddRange(
 							new BindingValue[]
 							{
-								new BindingValue (doc, "Address", sendPortXpath + "/PrimaryTransport/Address"),
 								new BindingValue (doc, "FileName", sendPortXpath + "/PrimaryTransport/TransportTypeData", true)
 							});
 						break;
@@ -57,7 +61,6 @@ namespace HampusBizTalkUtil.Data
 						result[name].AddRange(
 							new BindingValue[]
 							{
-								new BindingValue (doc, "Address", sendPortXpath + "/PrimaryTransport/Address"),
 								new BindingValue (doc, "UserName", sendPortXpath + "/PrimaryTransport/TransportTypeData", true),
 								new BindingValue (doc, "TargetFileName", sendPortXpath + "/PrimaryTransport/TransportTypeData", true),
 								new BindingValue (doc, "FolderPath", sendPortXpath + "/PrimaryTransport/TransportTypeData", true),
@@ -91,13 +94,17 @@ namespace HampusBizTalkUtil.Data
 						{ new BindingValue(doc, "Description", receiveLocationXpath + "/Description") }
 					});
 
+					if (doc.SelectSingleNode(receiveLocationXpath + "/Address") != null)
+					{
+						result[name].Add(new BindingValue(doc, "Address", receiveLocationXpath + "/Address"));
+					}
+
 					switch (type)
 					{
 						case "FILE":
 							result[name].AddRange(
 							new BindingValue[]
 							{
-								new BindingValue (doc, "Address", receiveLocationXpath + "/Address"),
 								new BindingValue (doc, "FileMask", receiveLocationXpath + "/ReceiveLocationTransportTypeData", true)
 							});
 							break;
@@ -105,7 +112,6 @@ namespace HampusBizTalkUtil.Data
 							result[name].AddRange(
 							new BindingValue[]
 							{
-								new BindingValue (doc, "Address", receiveLocationXpath + "/Address"),
 								new BindingValue (doc, "FileMask", receiveLocationXpath + "/ReceiveLocationTransportTypeData", true),
 								new BindingValue (doc, "UserName", receiveLocationXpath + "/ReceiveLocationTransportTypeData", true),
 								new BindingValue (doc, "ServerAddress", receiveLocationXpath + "/ReceiveLocationTransportTypeData", true),
@@ -116,7 +122,6 @@ namespace HampusBizTalkUtil.Data
 							result[name].AddRange(
 							new BindingValue[]
 							{
-								new BindingValue (doc, "Address", receiveLocationXpath + "/Address"),
 								new BindingValue (doc, "polledDataAvailableStatement", receiveLocationXpath + "/ReceiveLocationTransportTypeData", true, "ReceiveWCF-SQL"),
 								new BindingValue (doc, "pollingStatement", receiveLocationXpath + "/ReceiveLocationTransportTypeData", true, "ReceiveWCF-SQL"),
 								new BindingValue (doc, "pollingIntervalInSeconds", receiveLocationXpath + "/ReceiveLocationTransportTypeData", true, "ReceiveWCF-SQL")
