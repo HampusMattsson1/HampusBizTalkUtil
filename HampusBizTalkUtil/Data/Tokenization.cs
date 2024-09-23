@@ -67,6 +67,13 @@ namespace HampusBizTalkUtil.Data
 								new BindingValue (doc, "ServerAddress", sendPortXpath + "/PrimaryTransport/TransportTypeData", true)
 							});
 						break;
+					case "WCF-WebHttp":
+						result[name].AddRange(
+							new BindingValue[]
+							{
+								new BindingValue (doc, "HttpMethodAndUrl", sendPortXpath + "/PrimaryTransport/TransportTypeData", true)
+							});
+						break;
 				}
 
 				index++;
