@@ -38,7 +38,7 @@
 				{
 					<input value="@value.Name" style='width:50%; float: left' />
 					@* <input value="@value.Value" oninput="@((ChangeEventArgs e) => value.UpdateXml(document))" style='width:50%' /> *@
-					<input @bind="value.Value" oninput="@((ChangeEventArgs e) => UpdateXml(e, value))" style='width:50%' />
+					<input @bind="value.Value" oninput="@((ChangeEventArgs e) => UpdateXmlString(e, value))" style='width:50%' />
 
 				}
 				
@@ -141,7 +141,23 @@
 		} catch {}
 
 		binding = Tokenization.GetBasicBindingValues(xml);
+		FindVariables();
+	}
 
+	private void UpdateXmlString(ChangeEventArgs e, BindingValue bindingValue)
+	{
+		bindingValue.Value = e.Value.ToString();
+
+		bindingValue.UpdateXml(document);
+
+		xml = document.DocumentElement.OuterXml;
+		FindVariables();
+
+		StateHasChanged();
+	}
+
+	private void FindVariables()
+	{
 		var variableMatches = Regex.Matches(xml, "__.*?__");
 		if (variableMatches.Count > 0)
 		{
@@ -151,28 +167,5 @@
 		{
 			variables.Clear();
 		}
-	}
-
-	private void UpdateXml(ChangeEventArgs e, BindingValue bindingValue)
-	{
-		string newValue = e.Value.ToString();
-
-		bindingValue.Value = newValue;
-		bindingValue.UpdateXml(document);
-
-		xml = document.DocumentElement.OuterXml;
-
-		// binding = Tokenization.GetBasicBindingValues(xml);
-		// OnPropertyChanged(nameof(xml));
-		// OnPropertyChanged(nameof(xml));
-
-		StateHasChanged();
-	}
-
-	public event PropertyChangedEventHandler PropertyChanged;
-
-	protected virtual void OnPropertyChanged(string propertyName)
-	{
-		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 	}
 }
