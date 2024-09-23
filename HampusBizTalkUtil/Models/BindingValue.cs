@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
@@ -47,7 +48,7 @@ namespace HampusBizTalkUtil.Models
 						tempdoc.LoadXml(customsProps);
 						var bindingConfiguration = tempdoc.SelectSingleNode("binding");
 						this.Value = bindingConfiguration.Attributes[Name].InnerText;
-						this.RawValue = bindingConfiguration.Attributes[Name].InnerXml;
+						this.RawValue = SecurityElement.Escape(SecurityElement.Escape(bindingConfiguration.Attributes[Name].InnerXml));
 					}
 				}
 			}
@@ -88,7 +89,7 @@ namespace HampusBizTalkUtil.Models
 						tempdocSpecial.LoadXml(bindingConfiguration);
 
 						tempdocSpecial.SelectSingleNode("binding").Attributes[Name].InnerText = Value;
-						RawValue = tempdocSpecial.SelectSingleNode("binding").Attributes[Name].InnerXml;
+						RawValue = SecurityElement.Escape(SecurityElement.Escape(tempdocSpecial.SelectSingleNode("binding").Attributes[Name].InnerXml));
 
 						tempdoc.SelectSingleNode($"CustomProps/BindingConfiguration").InnerText = tempdocSpecial.OuterXml;
 					}
