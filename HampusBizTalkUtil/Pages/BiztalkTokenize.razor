@@ -5,7 +5,9 @@
 @using System.Text.RegularExpressions
 @using System.Xml
 @using System.ComponentModel
+
 @inject Tokenization Tokenization
+@inject IJSRuntime JSRuntime
 
 <h3>Biztalk Tokenization</h3>
 
@@ -36,10 +38,10 @@
 				<p>@port.Key</p>
 				foreach(var value in port.Value)
 				{
-					<input value="@value.Name" style='width:50%; float: left' />
+					<button @onclick="() => CopyText(value.RawValue)" style="width: 10%; float: left">Copy</button>
+					<input value="@value.Name" style='width:45%; float: left' />
 					@* <input value="@value.Value" oninput="@((ChangeEventArgs e) => value.UpdateXml(document))" style='width:50%' /> *@
-					<input @bind="value.Value" oninput="@((ChangeEventArgs e) => UpdateXmlString(e, value))" style='width:50%' />
-
+					<input @bind="value.Value" oninput="@((ChangeEventArgs e) => UpdateXmlString(e, value))" style='width:45%' />
 				}
 				
 				<br />
@@ -83,6 +85,16 @@
 	</div>
 
 </div>
+
+<script>
+	function copyToClipboard(text) {
+		navigator.clipboard.writeText(text).then(function () {
+			console.log('Text copied to clipboard');
+		}).catch(function (error) {
+			console.error('Error copying text: ', error);
+		});
+	}
+</script>
 
 <style>
 	.grid-container {
@@ -167,5 +179,10 @@
 		{
 			variables.Clear();
 		}
+	}
+
+	private async Task CopyText(string text)
+	{
+		await JSRuntime.InvokeVoidAsync("copyToClipboard", text);
 	}
 }

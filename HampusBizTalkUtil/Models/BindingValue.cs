@@ -14,6 +14,8 @@ namespace HampusBizTalkUtil.Models
 		public string Name;
 		public string Value;
 
+		public string RawValue;
+
 		private bool CustomProps = false;
 		private string SpecialCase = "";
 
@@ -35,6 +37,7 @@ namespace HampusBizTalkUtil.Models
 				if (string.IsNullOrEmpty(SpecialCase))
 				{
 					this.Value = tempdoc.SelectSingleNode($"CustomProps/{Name}").InnerText;
+					this.RawValue = tempdoc.SelectSingleNode($"CustomProps/{Name}").InnerXml;
 				}
 				else
 				{
@@ -44,6 +47,7 @@ namespace HampusBizTalkUtil.Models
 						tempdoc.LoadXml(customsProps);
 						var bindingConfiguration = tempdoc.SelectSingleNode("binding");
 						this.Value = bindingConfiguration.Attributes[Name].InnerText;
+						this.RawValue = bindingConfiguration.Attributes[Name].InnerXml;
 					}
 				}
 			}
@@ -72,6 +76,7 @@ namespace HampusBizTalkUtil.Models
 				if (string.IsNullOrEmpty(SpecialCase))
 				{
 					tempdoc.SelectSingleNode($"CustomProps/{Name}").InnerText = Value;
+					RawValue = tempdoc.SelectSingleNode($"CustomProps/{Name}").InnerXml;
 				}
 				else
 				{
@@ -83,6 +88,7 @@ namespace HampusBizTalkUtil.Models
 						tempdocSpecial.LoadXml(bindingConfiguration);
 
 						tempdocSpecial.SelectSingleNode("binding").Attributes[Name].InnerText = Value;
+						RawValue = tempdocSpecial.SelectSingleNode("binding").Attributes[Name].InnerXml;
 
 						tempdoc.SelectSingleNode($"CustomProps/BindingConfiguration").InnerText = tempdocSpecial.OuterXml;
 					}
@@ -93,6 +99,7 @@ namespace HampusBizTalkUtil.Models
 			else
 			{
 				node.InnerText = Value;
+				RawValue = node.InnerXml;
 			}
 		}
 	}
