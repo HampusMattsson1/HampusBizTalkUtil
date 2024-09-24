@@ -145,14 +145,12 @@
 
 	private void Update(ChangeEventArgs e)
 	{
-		// xml = e.Value.ToString();
-
 		try
 		{
 			document.LoadXml(e.Value.ToString());
 		} catch {}
 
-		binding = Tokenization.GetBasicBindingValues(xml);
+		binding = Tokenization.GetBasicBindingValues(document, xml);
 		xml = document.OuterXml;
 		FindVariables();
 	}
@@ -160,10 +158,9 @@
 	private void UpdateXmlString(ChangeEventArgs e, BindingValue bindingValue)
 	{
 		bindingValue.Value = e.Value.ToString();
-
 		bindingValue.UpdateXml(document);
 
-		xml = document.DocumentElement.OuterXml;
+		xml = document.OuterXml;
 		FindVariables();
 
 		StateHasChanged();
@@ -174,7 +171,7 @@
 		var variableMatches = Regex.Matches(xml, "__.*?__");
 		if (variableMatches.Count > 0)
 		{
-			variables = variableMatches.Cast<Match>().Select(m => m.Value).ToList();
+			variables = variableMatches.Cast<Match>().Select(m => m.Value.Substring(2, m.Value.Length-4)).ToList();
 		}
 		else
 		{

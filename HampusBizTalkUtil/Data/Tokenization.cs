@@ -10,15 +10,11 @@ namespace HampusBizTalkUtil.Data
 {
     public class Tokenization
     {
-        public Dictionary<string, List<BindingValue>> GetBasicBindingValues(string xml)
+        public Dictionary<string, List<BindingValue>> GetBasicBindingValues(XmlDocument doc, string xml)
         {
 			var result = new Dictionary<string, List<BindingValue>>();
 
-			var doc = new XmlDocument();
-			try
-			{
-				doc.LoadXml(xml);
-			} catch
+			if (doc.InnerXml == "")
 			{
 				return result;
 			}
