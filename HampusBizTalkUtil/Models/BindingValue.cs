@@ -47,8 +47,11 @@ namespace HampusBizTalkUtil.Models
 						var customsProps = tempdoc.SelectSingleNode($"CustomProps/BindingConfiguration").InnerText;
 						tempdoc.LoadXml(customsProps);
 						var bindingConfiguration = tempdoc.SelectSingleNode("binding");
-						this.Value = bindingConfiguration.Attributes[Name].InnerText;
-						this.RawValue = SecurityElement.Escape(SecurityElement.Escape(bindingConfiguration.Attributes[Name].InnerXml));
+						if (bindingConfiguration.Attributes[Name] != null)
+						{
+                            this.Value = bindingConfiguration.Attributes[Name].InnerText;
+                            this.RawValue = SecurityElement.Escape(SecurityElement.Escape(bindingConfiguration.Attributes[Name].InnerXml));
+                        }
 					}
 				}
 			}
@@ -56,6 +59,15 @@ namespace HampusBizTalkUtil.Models
 			{
 				this.Value = doc.SelectSingleNode(Xpath).InnerText;
 			}
+
+			// Andra speciella grejer
+			if (Name == "Description")
+			{
+				if (doc.SelectSingleNode(Xpath).Attributes["xsi:nil"] != null)
+				{
+                    doc.SelectSingleNode(Xpath).Attributes.RemoveNamedItem("xsi:nil");
+                }
+            }
 		}
 
 		public void UpdateXml(XmlDocument doc)

@@ -145,14 +145,15 @@
 
 	private void Update(ChangeEventArgs e)
 	{
-		xml = e.Value.ToString();
+		// xml = e.Value.ToString();
 
 		try
 		{
-			document.LoadXml(xml);
+			document.LoadXml(e.Value.ToString());
 		} catch {}
 
 		binding = Tokenization.GetBasicBindingValues(xml);
+		xml = document.OuterXml;
 		FindVariables();
 	}
 
