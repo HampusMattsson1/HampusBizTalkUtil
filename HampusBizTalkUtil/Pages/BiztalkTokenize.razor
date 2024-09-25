@@ -32,7 +32,12 @@
 	<div class="grid-item">
 		<h5 style="font-weight: bold">Port values</h5>
 		<div id="values">
-			@* @xml *@
+			
+			@if (binding.Count == 0)
+			{
+				<h3>Invalid XML</h3>
+			}
+
 			@foreach(var port in binding)
 			{
 				<p>@port.Key</p>
@@ -151,7 +156,7 @@
 		} catch {}
 
 		binding = Tokenization.GetBasicBindingValues(document, xml);
-		xml = document.OuterXml;
+		xml = string.IsNullOrEmpty(document.OuterXml) ? e.Value.ToString() : document.OuterXml;
 		FindVariables();
 	}
 
@@ -171,7 +176,7 @@
 		var variableMatches = Regex.Matches(xml, "__.*?__");
 		if (variableMatches.Count > 0)
 		{
-			variables = variableMatches.Cast<Match>().Select(m => m.Value.Substring(2, m.Value.Length-4)).ToList();
+			variables = variableMatches.Cast<Match>().Select(m => m.Value.Substring(2, m.Value.Length-4)).Distinct().ToList();
 		}
 		else
 		{
