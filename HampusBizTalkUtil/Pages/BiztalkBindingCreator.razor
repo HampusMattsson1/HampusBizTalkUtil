@@ -1,0 +1,42 @@
+﻿@page "/bindingcreator"
+
+@using HampusBizTalkUtil.Models;
+@using System.Xml;
+
+<h3>Biztalk Binding Creator</h3>
+
+<div>
+	<label>Application Name</label>
+	<input @bind="ApplicationName" />
+</div>
+
+<div>
+	<h5>Receive Ports</h5>
+	<button @onclick="Binding.AddReceivePort">Add</button>
+	<div>
+		@foreach(var receivePort in Binding.ReceivePorts)
+		{
+			<p>&emsp;@receivePort.Name</p>
+			<button @onclick="receivePort.AddReceiveLocation" style="margin-left: 2em;">Add Receive Location</button>
+			foreach (var receiveLocation in receivePort.ReceiveLocations)
+			{
+				<p>&emsp;&emsp;@receiveLocation.Name</p>
+			}
+		}
+	</div>
+
+	<h5>Send Ports</h5>
+	<button @onclick="Binding.AddSendPort">Add</button>
+	<div>
+		@foreach (var sendPort in Binding.SendPorts)
+		{
+			<p>&emsp;@sendPort.Name</p>
+		}
+	</div>
+</div>
+
+@code {
+	public string ApplicationName = "";
+	public Binding Binding = new();
+
+}
