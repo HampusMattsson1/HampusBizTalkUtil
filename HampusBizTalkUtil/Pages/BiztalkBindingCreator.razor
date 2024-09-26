@@ -17,27 +17,29 @@
 		<h5>Receive Ports</h5>
 		<button @onclick="Binding.AddReceivePort">Add</button>
 	</div>
-	<div>
-		@foreach(var receivePort in Binding.ReceivePorts)
-		{
-			<br />
+	@foreach(var receivePort in Binding.ReceivePorts)
+	{
+		<br />
+		<div class="indent1">
 			<div class="grid-container2">
-				<p>&emsp;@receivePort.Name</p>
-				<button @onclick="receivePort.AddReceiveLocation" style="margin-left: 2em;">Add Receive Location</button>
+				<p>@receivePort.Name</p>
+				<button @onclick="receivePort.AddReceiveLocation">Add Receive Location</button>
 			</div>
-			foreach (var receiveLocation in receivePort.ReceiveLocations)
+		</div>
+		<div class="grid-container3">
+			@foreach (var receiveLocation in receivePort.ReceiveLocations)
 			{
-				<p>&emsp;&emsp;@receiveLocation.Name</p>
+				<p style="grid-column-start: 2">@receiveLocation.Name</p>
 			}
-		}
-	</div>
+		</div>
+	}
 
 	<h5>Send Ports</h5>
 	<button @onclick="Binding.AddSendPort">Add</button>
-	<div>
+	<div class="indent1">
 		@foreach (var sendPort in Binding.SendPorts)
 		{
-			<p>&emsp;@sendPort.Name</p>
+			<p>@sendPort.Name</p>
 		}
 	</div>
 </div>
@@ -50,6 +52,17 @@
 	.grid-container2 {
 		display: grid;
 		grid-template-columns: 8em 10em;
+	}
+	.grid-container3 {
+		display: grid;
+		grid-template-columns: 5em 10em;
+	}
+
+	.indent1 {
+		margin-left: 2em;
+	}
+	.nested2 {
+		margin-left: 10em;
 	}
 </style>
 
